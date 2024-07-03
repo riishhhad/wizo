@@ -1,6 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:wizo/screen2.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wizo/Bloc/wizo_bloc.dart';
+import 'package:wizo/UI/screen2.dart';
+
+import '../Repository/Modelclass/ProductModel.dart';
 
 class screen1 extends StatefulWidget {
   const screen1({super.key});
@@ -10,17 +14,13 @@ class screen1 extends StatefulWidget {
 }
 
 class _screen1State extends State<screen1> {
-
-  List img1 = ['assets/8.png','assets/9.png','assets/10.png','assets/11.png'];
-
-  List text1 = [  'Sneaker','Fitbit Smartwatch', 'Smartphone', 'Headphone',];
-  List text2 = [ '\$100',  '\$150', '\$599', '\$199',];
-
-
-
-
-
-
+  late ProductModel result;
+  @override
+  void initState() {
+    BlocProvider.of<WizoBloc>(context).add(FetcwizoEvent());
+    // TODO: implement initState
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(backgroundColor: Colors.white,body: Column(children: [
@@ -217,49 +217,64 @@ class _screen1State extends State<screen1> {
         )
       ],),
       SizedBox(height: 15,),
-      Expanded(child:GridView.count(
+      Expanded(child:BlocBuilder<WizoBloc, WizoState>(
+  builder: (context, state) {
+    if (state is WizoBlocloading) {
+      return Center(child: CircularProgressIndicator(),);
+    }
+      if (state is WizoBlocerror) {
+    return Center(child: Text("Error"),);
+    }
+        if (state is WizoBlocloaded) {
+    result = BlocProvider.of<WizoBloc>(context).productModel;
+    return GridView.count(
       crossAxisCount: 2,
       crossAxisSpacing: 10.0,
       mainAxisSpacing: 10.0,
-      childAspectRatio: 550/670,
+      childAspectRatio: 350/450,
       shrinkWrap: true,
-      children: List.generate(4, (index) {
+      children: List.generate(result.data!.products!.length, (index) {
       return Padding(
       padding: const EdgeInsets.all(10.0),
       child:
       TextButton(
-        onPressed: () {Navigator.of(context).push(MaterialPageRoute(builder: (_)=>screen2()));},
+        onPressed: () {Navigator.of(context).push(MaterialPageRoute(builder: (_)=>screen2(productId:result.data!.products![index].asin.toString() ,)));},
         child: Container(
           margin: EdgeInsets.only(bottom: 10),child: Column(
         children: [
         Padding(
         padding:  EdgeInsets.only(top: 8),
-        child: SizedBox(width: 50,child: Image.asset(img1[index])),
+        child: SizedBox(width: 80,height: 78,child: Image.network(result.data!.products![index].productPhoto.toString())),
         ),Padding(
         padding:  EdgeInsets.only(top: 10),
         child: SizedBox(
         width: 120,
-        child: Text(
-        text1[index],
-        style: TextStyle(
-        color: Color(0xFF212529),
-        fontSize: 15,
-        fontFamily: 'Roboto',
-        fontWeight: FontWeight.w400,
+        child: SizedBox(width: 80,height: 24,
+          child: Text(
+                 result.data!.products![index].productTitle.toString(),maxLines: 1,
+          style: TextStyle(
+          color: Color(0xFF212529),
+          fontSize: 15,
+          fontFamily: 'Roboto',
+          fontWeight: FontWeight.w400,
+          ),
+          ),
         ),
         ),
-        ),
-        ),Row(children: [
+        ),SizedBox(height:25 ,),
+          Row(children: [
             Padding(
               padding:  EdgeInsets.only(left: 5),
               child: SizedBox(width: 110,
-                child: Text(
-                  text2[index],
-                  style: TextStyle(
-                    color: Color(0xFF8204FF),
-                    fontSize: 14,
-                    fontFamily: 'Lato',
-                    fontWeight: FontWeight.w700,
+                child: SizedBox(width: 200,
+                  child: Text(
+                   result.data!.products![index].productPrice.toString(),
+                    style: TextStyle(
+                      color: Color(0xFF8204FF),
+                      fontSize: 14,
+                      fontFamily: 'Lato',
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
               ),
@@ -275,7 +290,7 @@ class _screen1State extends State<screen1> {
         decoration: ShapeDecoration(
         color: Color(0xFFF9FAFB),
         shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(1),
         ),
         shadows: [
         BoxShadow(
@@ -290,7 +305,9 @@ class _screen1State extends State<screen1> {
       )
       );
       },),
-      ),
+      ); } else {return SizedBox(width: 10,);}
+  },
+),
       )
     ],),);
   }

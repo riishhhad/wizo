@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:wizo/screen1.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wizo/Bloc/wizo_bloc.dart';
+import 'package:wizo/Repository/Modelclass/Wizoprdct.dart';
+import 'package:wizo/UI/screen1.dart';
+
+import 'Bloc/wizoprdct_bloc.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,7 +16,12 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MultiBlocProvider(
+  providers: [
+    BlocProvider(create: (context) => WizoBloc(),),
+    BlocProvider(create: (context) => WizoprdctBloc(),)
+  ],
+  child: MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
         // This is the theme of your application.
@@ -34,7 +44,8 @@ class MyApp extends StatelessWidget {
       ),
       home: screen1()
 
-    );
+    ),
+);
   }
 }
 
